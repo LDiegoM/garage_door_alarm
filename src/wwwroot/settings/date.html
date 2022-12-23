@@ -1,0 +1,24 @@
+<div class="container mt-4">
+    <p>This page contains current Date Time configurations, and allows to modify them.</p>
+    <div class="row">
+        <div class="col">
+            <label for="server" class="form-label">Server:</label>
+            <input type="text" class="form-control" id="server" placeholder="Server" name="server" value="{server}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="gmtOffset" class="form-label">GMT offset:</label>
+            <input type="number" class="form-control" id="gmtOffset" placeholder="GMT offset" name="gmtOffset" value="{gmtOffset}">
+        </div>
+        <div class="col">
+            <label for="daylightOffset" class="form-label">Daylight offset:</label>
+            <input type="number" class="form-control" id="daylightOffset" placeholder="Daylight offset" name="daylightOffset" value="{daylightOffset}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-primary mt-2" onclick="saveDate();">Save</button>
+        </div>
+    </div>
+</div>

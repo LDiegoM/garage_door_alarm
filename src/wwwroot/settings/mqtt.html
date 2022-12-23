@@ -1,0 +1,36 @@
+<div class="container mt-4">
+    <p>This page contains current MQTT client configurations, and allows to modify them.</p>
+    <div class="row">
+        <div class="col">
+            <label for="server" class="form-label">Server:</label>
+            <input type="text" class="form-control" id="server" placeholder="Server address" name="server" value="{server}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="user" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="user" placeholder="Usename" name="user" value="{user}">
+        </div>
+        <div class="col">
+            <label for="pw" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="pw" placeholder="Password" name="pw" value="****">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="port" class="form-label">Port:</label>
+            <input type="number" class="form-control" id="port" placeholder="Port" name="port" value="{port}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="certificate" class="form-label">Server SSL certificate (complete to update):</label>
+            <textarea class="form-control" rows="8" id="certificate" placeholder="Server SSL certificate" name="certificate">{certificate}</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-primary mt-2" onclick="saveMQTT();">Save</button>
+        </div>
+    </div>
+</div>
