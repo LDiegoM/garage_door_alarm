@@ -1,9 +1,9 @@
-#include <data_logger.h>
+#include <internal/low_level/data_logger.h>
 
 DataLogger *dataLogger = nullptr;
 
 //////////////////// Constructor
-DataLogger::DataLogger(DoorStatus *doorStat, DateTime *dateTime, Storage *storage, String filePath) {
+DataLogger::DataLogger(CommonDoorStatus *doorStat, DateTime *dateTime, Storage *storage, String filePath) {
     m_doorStatus = doorStat;
     m_dateTime = dateTime;
     m_storage = storage;

@@ -1,4 +1,4 @@
-#include <mqtt_handlers.h>
+#include <internal/door_device/mqtt_handlers.h>
 
 MqttHandlers *mqtt = nullptr;
 
@@ -9,7 +9,7 @@ void mqttMessageReceived(char* topic, uint8_t* payload, unsigned int length) {
 
 //////////////////// Constructor
 MqttHandlers::MqttHandlers(WiFiConnection *wifi, DoorStatus *doorStatus, Settings *settings,
-           DataLogger *dataLogger, Storage *storage) {
+                           DataLogger *dataLogger, Storage *storage) {
     m_wifi = wifi;
     m_doorStatus = doorStatus;
     m_settings = settings;

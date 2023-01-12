@@ -7,21 +7,23 @@
 #ifndef mqtt_handlers_h
 #define mqtt_handlers_h
 
-#include <wifi_connection.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-#include <timer.h>
-#include <door_status.h>
-#include <settings.h>
-#include <data_logger.h>
-#include <storage.h>
+#include <internal/common/mqtt_handlers.h>
+#include <internal/low_level/storage.h>
+#include <internal/low_level/timer.h>
+#include <internal/net/wifi_connection.h>
+#include <internal/settings/settings.h>
+#include <internal/low_level/data_logger.h>
+
+#include <internal/door_device/door_status.h>
 
 //////////////////// MQTT Handlers
 void mqttMessageReceived(char* topic, uint8_t* payload, unsigned int length);
 
-class MqttHandlers {
+class MqttHandlers : public CommonMqttHandlers {
     private:
         WiFiConnection *m_wifi;
         DoorStatus *m_doorStatus;
