@@ -4,8 +4,8 @@
 // For ESP32
 // #include "esp32-hal-ledc.h"
 
-#include <door_status.h>
-#include <timer.h>
+#include <internal/low_level/timer.h>
+#include <internal/door/door_status.h>
 
 class Alarm {
     private:

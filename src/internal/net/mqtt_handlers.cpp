@@ -1,4 +1,4 @@
-#include <mqtt_handlers.h>
+#include <internal/net/mqtt_handlers.h>
 
 MqttHandlers *mqtt = nullptr;
 

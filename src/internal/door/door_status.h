@@ -1,8 +1,8 @@
 #ifndef door_status_h
 #define door_status_h
 
-#include <sensors.h>
-#include <timer.h>
+#include <internal/low_level/sensors.h>
+#include <internal/low_level/timer.h>
 
 enum doorStatus {
     Unknown,

@@ -10,7 +10,7 @@
     Diego M. Lopez - 2021 (ldiegom@gmail.com)
 */
 
-#include <timer.h>
+#include <internal/low_level/timer.h>
 
 Timer::Timer(unsigned long duration) {
     m_duration = duration;

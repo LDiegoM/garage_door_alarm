@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <ArduinoJson.h>
-#include <storage.h>
+#include <internal/low_level/storage.h>
 
 struct wifiAP_t {
     String ssid, password;

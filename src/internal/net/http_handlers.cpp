@@ -1,4 +1,4 @@
-#include <http_handlers.h>
+#include <internal/net/http_handlers.h>
 
 HttpHandlers *httpHandlers = nullptr;
 

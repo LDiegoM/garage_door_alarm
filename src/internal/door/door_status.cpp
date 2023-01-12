@@ -1,4 +1,4 @@
-#include <door_status.h>
+#include <internal/door/door_status.h>
 
 //////////////////// Constructor
 DoorStatus::DoorStatus(Sensors *sensors) {

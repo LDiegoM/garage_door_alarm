@@ -9,7 +9,7 @@
 #error "Unsupported platform"
 #endif
 
-#include <settings.h>
+#include <internal/settings/settings.h>
 
 class WiFiConnection {
     private:

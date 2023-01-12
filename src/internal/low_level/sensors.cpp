@@ -1,4 +1,4 @@
-#include <sensors.h>
+#include <internal/low_level/sensors.h>
 
 //////////////////// Constructor
 Sensors::Sensors(uint8_t irPin) {

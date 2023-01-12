@@ -1,4 +1,4 @@
-#include <settings.h>
+#include <internal/settings/settings.h>
 
 const char* SETTINGS_FILE = "/settings/door_settings.json";
 
