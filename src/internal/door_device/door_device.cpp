@@ -1,13 +1,17 @@
-#include <door_device.h>
+#include <internal/door_device/door_device.h>
 
 //////////////////// Constructor
-DoorDevice::DoorDevice() {
+DoorDevice::DoorDevice(bool isBuzzerConnected) {
+    m_isBuzzerConnected = isBuzzerConnected;
+
 #if defined(ESP8266) && defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = 3;
+    m_buzzerPin = 2;
 #elif defined(ESP8266) && !defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = D5;
+    m_buzzerPin = D1;
 #else
     m_serialSpeed = 115200;
     m_irPin = GPIO_NUM_39;
@@ -18,9 +22,8 @@ DoorDevice::DoorDevice() {
 //////////////////// Public methods implementation
 void DoorDevice::setup() {
     Serial.begin(m_serialSpeed);
-    // delay(2000);
 
-    Serial.println("Starting DoorDevice setup");
+    Serial.println("Starting AllInOne setup");
 
     Serial.println("Creating Sensors object");
     m_sensors = new Sensors(m_irPin);
@@ -29,21 +32,33 @@ void DoorDevice::setup() {
     m_doorStat = new DoorStatus(m_sensors);
     m_doorStat->begin();
 
+    if (m_isBuzzerConnected) {
+        Serial.println("Creating Alarm object");
+        m_garage_alarm = new Alarm(m_doorStat, m_buzzerPin);
+    }
+
     Serial.println("Creating Storage object");
     m_storage = new Storage();
+    Serial.println("Begining Storage object");
     if (!m_storage->begin())
         return;
 
     Serial.println("Creating Settings object");
     m_settings = new Settings(m_storage);
-    if (!m_settings->begin())
+    Serial.println("Begining Settings object");
+    if (!m_settings->begin()) {
+        Serial.println("Error begining Settings object");
         return;
-    if (!m_settings->isSettingsOK())
+    }
+    if (!m_settings->isSettingsOK()) {
+        Serial.println("Settings not ok!!");
         return;
+    }
     settings_t config = m_settings->getSettings();
 
     Serial.println("Creating WiFiConnection object");
     m_wifi = new WiFiConnection(m_settings);
+    Serial.println("Begining WiFiConnection object");
     m_wifi->begin();
     Serial.printf("WiFi AP: %s - IP: %s\n", m_wifi->getSSID().c_str(), m_wifi->getIP().c_str());
 
@@ -64,12 +79,13 @@ void DoorDevice::setup() {
         Serial.println("Could not start http server");
         return;
     }
-
-    // pinMode(m_irPin, INPUT);
 }
 
 void DoorDevice::loop() {
     m_doorStat->loop();
+
+    if (m_isBuzzerConnected)
+        m_garage_alarm->loop();
 
     if (!m_settings->isSettingsOK())
         return;

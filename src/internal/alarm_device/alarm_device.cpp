@@ -1,4 +1,4 @@
-#include <alarm_device.h>
+#include <internal/alarm_device/alarm_device.h>
 
 //////////////////// Constructor
 AlarmDevice::AlarmDevice() {

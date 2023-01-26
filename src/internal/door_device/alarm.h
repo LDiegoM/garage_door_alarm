@@ -5,7 +5,7 @@
 // #include "esp32-hal-ledc.h"
 
 #include <internal/low_level/timer.h>
-#include <internal/door/door_status.h>
+#include <internal/door_device/door_status.h>
 
 class Alarm {
     private:

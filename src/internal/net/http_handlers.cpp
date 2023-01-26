@@ -73,7 +73,7 @@ void getAdmin() {
 
 //////////////////// Constructor
 HttpHandlers::HttpHandlers(WiFiConnection *wifi, Storage *storage, Settings *settings,
-                           DataLogger *dataLogger, DoorStatus *doorStatus, MqttHandlers *mqtt) {
+                           DataLogger *dataLogger, CommonDoorStatus *doorStatus, CommonMqttHandlers *mqtt) {
     m_wifi = wifi;
     m_storage = storage;
     m_settings = settings;
@@ -365,7 +365,7 @@ void HttpHandlers::defineRoutes() {
     m_server->on("/logs", HTTP_GET, downloadLogs);
     m_server->on("/logs", HTTP_DELETE, deleteLogs);
     m_server->on("/restart", HTTP_POST, restart);
-    m_server->on("/measures", HTTP_GET, getStatus);
+    m_server->on("/status", HTTP_GET, getStatus);
     m_server->on("/settings", HTTP_GET, getSettings);
     m_server->on("/settings", HTTP_DELETE, delSettings);
 

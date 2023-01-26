@@ -1,4 +1,4 @@
-#include <internal/door/alarm.h>
+#include <internal/door_device/alarm.h>
 
 //////////////////// Constructor
 Alarm::Alarm(DoorStatus *doorStatus, uint8_t buzzerPin) {
