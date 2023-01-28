@@ -1,28 +1,22 @@
 #ifndef door_status_h
 #define door_status_h
 
-#include <sensors.h>
-#include <timer.h>
+#include <internal/common/door_status.h>
 
-enum doorStatus {
-    Unknown,
-    Opened,
-    Closed
-};
+#include <internal/low_level/timer.h>
+#include <internal/alarm_device/mqtt_handlers.h>
 
-class DoorStatus {
+class AlarmDoorStatus : public CommonDoorStatus {
     private:
-        Sensors *m_sensors;
+        AlarmMqttHandlers *m_mqttHandlers;
 
         Timer *m_tmrRefreshValues;
         const uint16_t REFRESH_TIME_MILLIS = 250;
 
-        bool m_currentObstacle;
-
         void readValues();
 
     public:
-        DoorStatus(Sensors *sensors);
+        AlarmDoorStatus(AlarmMqttHandlers *mqttHandlers);
 
         void begin();
         void stop();

@@ -1,7 +1,7 @@
 #ifndef sensors_h
 #define sensors_h
 
-#include <timer.h>
+#include <internal/low_level/timer.h>
 
 class Sensors {
     private:

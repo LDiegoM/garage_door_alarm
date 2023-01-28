@@ -1,4 +1,4 @@
-#include <wifi_connection.h>
+#include <internal/net/wifi_connection.h>
 
 //////////////////// Constructor
 WiFiConnection::WiFiConnection(Settings *settings) {

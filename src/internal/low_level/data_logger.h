@@ -1,14 +1,14 @@
 #ifndef data_logger_h
 #define data_logger_h
 
-#include <door_status.h>
-#include <date_time.h>
-#include <storage.h>
-#include <timer.h>
+#include <internal/low_level/storage.h>
+#include <internal/low_level/timer.h>
+#include <internal/net/date_time.h>
+#include <internal/common/door_status.h>
 
 class DataLogger {
     private:
-        DoorStatus *m_doorStatus;
+        CommonDoorStatus *m_doorStatus;
         DateTime *m_dateTime;
         Storage *m_storage;
         String m_filePath;
@@ -19,7 +19,7 @@ class DataLogger {
         bool writeData(doorStatus currentStatus);
     
     public:
-        DataLogger(DoorStatus *doorStatus, DateTime *dateTime, Storage *storage, String filePath);
+        DataLogger(CommonDoorStatus *doorStatus, DateTime *dateTime, Storage *storage, String filePath);
 
         void loop();
         void logData();

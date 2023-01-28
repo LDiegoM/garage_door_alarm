@@ -11,12 +11,12 @@
 
 #include <ArduinoJson.h>
 
-#include <data_logger.h>
-#include <mqtt_handlers.h>
-#include <door_status.h>
-#include <settings.h>
-#include <storage.h>
-#include <wifi_connection.h>
+#include <internal/common/door_status.h>
+#include <internal/common/mqtt_handlers.h>
+#include <internal/settings/settings.h>
+#include <internal/low_level/storage.h>
+#include <internal/net/wifi_connection.h>
+#include <internal/low_level/data_logger.h>
 
 struct settings_mqtt_t {
     String server, username, password;
@@ -87,8 +87,8 @@ class HttpHandlers {
         WebServer *m_server;
 #endif
         DataLogger *m_dataLogger;
-        DoorStatus *m_doorStatus;
-        MqttHandlers *m_mqtt;
+        CommonDoorStatus *m_doorStatus;
+        CommonMqttHandlers *m_mqtt;
 
         void defineRoutes();
 
@@ -112,7 +112,7 @@ class HttpHandlers {
 
     public:
         HttpHandlers(WiFiConnection *wifi, Storage *storage, Settings *settings,
-                     DataLogger *dataLogger, DoorStatus *doorStatus, MqttHandlers *mqtt);
+                     DataLogger *dataLogger, CommonDoorStatus *doorStatus, CommonMqttHandlers *mqtt);
 
         bool begin();
         void loop();
