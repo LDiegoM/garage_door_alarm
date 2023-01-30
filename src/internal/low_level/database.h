@@ -33,12 +33,14 @@ class Database {
         sqlite3 *m_db = nullptr;
         const char *STORAGE_TYPE = "littlefs";
 
-        char *m_errMsg = 0;
+        String m_errMsg;
 
     public:
         Database(Storage *storage, String dbPath);
 
         bool begin();
+        String getErrorMessage();
+
         /*
          * The openDatabase() routine will try to open an existing database.
          * If file doesn't exists, will return false so client can call beginDatabase()
@@ -48,6 +50,9 @@ class Database {
         bool closeDatabase();
         bool createDatabase(String createSQL);
         bool execNonQuerySQL(String sql);
+        int getValueInt(String table, String field, String where, String orderBy);
+        float getValueFloat(String table, String field, String where, String orderBy);
+        String getResultsAsJSON(String sql);
 
         /* Theese methos will be part of statistics class as part of the alarm_device
         bool addEvent(doorStatus status);

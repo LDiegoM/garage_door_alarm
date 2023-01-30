@@ -11,11 +11,20 @@
 #include <internal/low_level/storage.h>
 #include <internal/low_level/timer.h>
 #include <internal/low_level/database.h>
+#include <internal/net/date_time.h>
+#include <internal/net/wifi_connection.h>
+#include <internal/settings/settings.h>
+
+#include <internal/alarm_device/http_handlers.h>
 
 class AlarmDevice {
     private:
         Storage *m_storage;
+        Settings *m_settings;
+        WiFiConnection *m_wifi;
+        DateTime *m_dateTime;
         Database *m_database;
+        AlarmHttpHandlers *m_httpHandlers;
 
     public:
         AlarmDevice();

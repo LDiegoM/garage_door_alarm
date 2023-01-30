@@ -21,6 +21,7 @@ class Storage {
         bool exists(const char *path);
         File open(const char *path);
         File open(const char *path, const char *mode);
+        bool mkdir(const char*path);
         String getSize();
         String getUsed();
         String getFree();

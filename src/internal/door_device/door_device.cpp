@@ -23,7 +23,7 @@ DoorDevice::DoorDevice(bool isBuzzerConnected) {
 void DoorDevice::setup() {
     Serial.begin(m_serialSpeed);
 
-    Serial.println("Starting AllInOne setup");
+    Serial.println("Starting DoorDevice setup");
 
     Serial.println("Creating Sensors object");
     m_sensors = new Sensors(m_irPin);

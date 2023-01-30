@@ -125,6 +125,10 @@ File Storage::open(const char *path, const char *mode) {
     return LittleFS.open(path, mode);
 }
 
+bool Storage::mkdir(const char*path) {
+    return LittleFS.mkdir(path);
+}
+
 String Storage::getSize() {
 #ifdef ESP8266
     FSInfo fsInfo;

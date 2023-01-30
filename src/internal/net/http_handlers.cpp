@@ -34,6 +34,10 @@ void getNotFound() {
 }
 
 void getStatusHTML() {
+    if (httpHandlers == nullptr) {
+        Serial.println("httpHandlers is null!!");
+        return;
+    }
     httpHandlers->handleGetStatusHTML();
 }
 
@@ -488,8 +492,14 @@ String HttpHandlers::getAdminHTMLPage() {
     String html = m_storage->readAll("/wwwroot/admin/admin.html");
 
     html.replace("{free_storage}", m_storage->getFree());
-    html.replace("{logs_size}", m_dataLogger->logSize());
-    html.replace("{last_date}", m_dataLogger->getLastLogTime());
+
+    if (m_dataLogger != NULL) {
+        html.replace("{logs_size}", m_dataLogger->logSize());
+        html.replace("{last_date}", m_dataLogger->getLastLogTime());
+    } else {
+        html.replace("{logs_size}", "N/A");
+        html.replace("{last_date}", "N/A");
+    }
 
     return html;
 }

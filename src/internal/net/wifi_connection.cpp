@@ -17,14 +17,18 @@ bool WiFiConnection::begin() {
         return false;
 
     for (size_t i = 0; i < m_settings->getSettings().wifiAPs.size(); i++) {
+        Serial.println("WiFiConnection::begin() add ap: " + m_settings->getSettings().wifiAPs[i].ssid);
         m_wifiMulti->addAP(m_settings->getSettings().wifiAPs[i].ssid.c_str(),
                            m_settings->getSettings().wifiAPs[i].password.c_str());
     }
 
+    Serial.println("WiFiConnection::begin->connect() begin");
     if (!connect()) {
         // If no wifi ap could connect, then begin default AP to enable configuration.
+        Serial.println("WiFiConnection::begin->connect() failed!");
         return beginAP();
     }
+    Serial.println("WiFiConnection::begin->connect() connected!");
     return true;
 }
 
