@@ -86,7 +86,14 @@ void AlarmDevice::setup() {
 
 }
 
+int i = 0;
 void AlarmDevice::loop() {
+    if (i < 5) {
+        Serial.printf("WiFi Status: %s - AP: %s - IP: %s\n", m_wifi->isConnected()?"connected":"disconnected", m_wifi->getSSID().c_str(), m_wifi->getIP().c_str());
+        i++;
+        if (alarmHttpHandlers != nullptr)
+            Serial.println("alarmHttpHandlers not NULL");
+    }
     if (alarmHttpHandlers != nullptr)
         alarmHttpHandlers->loop();
 }

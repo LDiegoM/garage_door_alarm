@@ -14,8 +14,6 @@ void deleteDB(void) {
 //////////////////// Constructor
 AlarmHttpHandlers::AlarmHttpHandlers(WiFiConnection *wifi, Storage *storage, Settings *settings) :
     HttpHandlers(wifi, storage, settings, NULL, NULL, NULL) {
-    
-    httpHandlers = this;
 }
 
 //////////////////// Public methods implementation
