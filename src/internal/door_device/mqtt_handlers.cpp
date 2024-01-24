@@ -136,7 +136,10 @@ void MqttHandlers::sendValuesToMQTT(doorStatus currentStatus) {
         return;
     }
     
-    String message = m_doorStatus->getDoorStatus(currentStatus);
-    if (m_mqttClient->publish(MQTT_TOPIC_STATUS, message.c_str(), true))
+    String message = "CLOSE";
+    if (currentStatus == Opened)
+        message = "OPEN";
+
+    if (m_mqttClient->publish(MQTT_TOPIC_GARAGE_DOOR, message.c_str(), true))
         m_lastDoorStatus = currentStatus;
 }
