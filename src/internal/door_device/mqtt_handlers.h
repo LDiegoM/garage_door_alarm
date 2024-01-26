@@ -40,7 +40,7 @@ class MqttHandlers : public CommonMqttHandlers {
 
         bool m_connected;
         Timer *m_tmrConnectMQTT;
-        const char* MQTT_TOPIC_STATUS = "topic-door-status";
+        const char* MQTT_TOPIC_GARAGE_DOOR = "topic-garage-door";
         const char* MQTT_TOPIC_CMD = "topic-door-cmd";
         const char* MQTT_TOPIC_RES_IP = "topic-door-res-ip";
         const char* MQTT_TOPIC_RES_LOG = "topic-door-res-log";
