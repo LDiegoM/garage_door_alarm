@@ -60,5 +60,9 @@ Garage door status is an open source project by Diego M. Lopez that is licensed 
 
 ## Unreleased
 
-- First projects POC.
 - Refactor for multiple device types.
+- Increase wifi connection timeout.
+
+## 0.0.1
+
+- First projects POC.

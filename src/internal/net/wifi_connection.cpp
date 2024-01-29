@@ -29,7 +29,7 @@ bool WiFiConnection::begin() {
 }
 
 bool WiFiConnection::connect() {
-    if (m_wifiMulti->run() != WL_CONNECTED)
+    if (m_wifiMulti->run(10000) != WL_CONNECTED)
         return false;
 
     return true;
