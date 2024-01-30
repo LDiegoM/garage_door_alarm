@@ -1,5 +1,7 @@
 #include <internal/door_device/door_device.h>
 
+DoorDevice *dev = nullptr;
+
 //////////////////// Constructor
 DoorDevice::DoorDevice(bool isBuzzerConnected) {
     m_isBuzzerConnected = isBuzzerConnected;
@@ -7,60 +9,50 @@ DoorDevice::DoorDevice(bool isBuzzerConnected) {
 #if defined(ESP8266) && defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = 3;
-    m_buzzerPin = 2;
+    m_buzzerPin = 1;
+    m_buttonPin = 0;
 #elif defined(ESP8266) && !defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = D5;
     m_buzzerPin = D1;
+    m_buttonPin = 0;
 #else
     m_serialSpeed = 115200;
     m_irPin = GPIO_NUM_39;
     m_buzzerPin = GPIO_NUM_27;
+    m_buttonPin = 0;
 #endif
 }
 
 //////////////////// Public methods implementation
 void DoorDevice::setup() {
-    Serial.begin(m_serialSpeed);
-
-    Serial.println("Starting AllInOne setup");
-
-    Serial.println("Creating Sensors object");
     m_sensors = new Sensors(m_irPin);
 
-    Serial.println("Creating DoorStatus object");
     m_doorStat = new DoorStatus(m_sensors);
     m_doorStat->begin();
 
     if (m_isBuzzerConnected) {
-        Serial.println("Creating Alarm object");
         m_garage_alarm = new Alarm(m_doorStat, m_buzzerPin);
     }
 
-    Serial.println("Creating Storage object");
+    m_button = new Button(m_buttonPin, [](){
+        dev->buttonPressed();
+    });
+    m_doorBell = new DoorBell();
+
     m_storage = new Storage();
-    Serial.println("Begining Storage object");
     if (!m_storage->begin())
         return;
 
-    Serial.println("Creating Settings object");
     m_settings = new Settings(m_storage);
-    Serial.println("Begining Settings object");
-    if (!m_settings->begin()) {
-        Serial.println("Error begining Settings object");
+    if (!m_settings->begin())
         return;
-    }
-    if (!m_settings->isSettingsOK()) {
-        Serial.println("Settings not ok!!");
+    if (!m_settings->isSettingsOK())
         return;
-    }
     settings_t config = m_settings->getSettings();
 
-    Serial.println("Creating WiFiConnection object");
     m_wifi = new WiFiConnection(m_settings);
-    Serial.println("Begining WiFiConnection object");
     m_wifi->begin();
-    Serial.printf("WiFi AP: %s - IP: %s\n", m_wifi->getSSID().c_str(), m_wifi->getIP().c_str());
 
     // Configure current time
     configTime(config.dateTime.gmtOffset * 60 * 60,
@@ -70,21 +62,16 @@ void DoorDevice::setup() {
 
     dataLogger = new DataLogger(m_doorStat, m_dateTime, m_storage, config.logger.outputPath);
 
-    Serial.println("Creating MqttHandlers object");
     mqtt = new MqttHandlers(m_wifi, m_doorStat, m_settings, dataLogger, m_storage);
-    if (!mqtt->begin())
-        Serial.println("MQTT is not connected");
+    mqtt->begin();
 
-    Serial.println("Creating HttpHandlers object");
     httpHandlers = new HttpHandlers(m_wifi, m_storage, m_settings, dataLogger, m_doorStat, mqtt);
-    if (!httpHandlers->begin()) {
-        Serial.println("Could not start http server");
-        return;
-    }
+    httpHandlers->begin();
 }
 
 void DoorDevice::loop() {
     m_doorStat->loop();
+    m_doorBell->loop();
 
     if (m_isBuzzerConnected)
         m_garage_alarm->loop();
@@ -100,6 +87,13 @@ void DoorDevice::loop() {
 
     if (mqtt != nullptr)
         mqtt->loop();
+
+    if (m_button != nullptr)
+        m_button->check();
+}
+
+void DoorDevice::buttonPressed() {
+    m_doorBell->ringDoorbell();
 }
 
 //////////////////// Private methods implementation
