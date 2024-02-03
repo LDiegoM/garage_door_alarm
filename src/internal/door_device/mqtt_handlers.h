@@ -49,7 +49,7 @@ class MqttHandlers : public CommonMqttHandlers {
 
         doorStatus m_lastDoorStatus = Unknown;
 
-        void sendValuesToMQTT(doorStatus currentStatus);
+        void sendDoorStatusToMQTT(doorStatus currentStatus);
 
     public:
         MqttHandlers(WiFiConnection *wifi, DoorStatus *doorStatus, Settings *settings,
@@ -60,6 +60,8 @@ class MqttHandlers : public CommonMqttHandlers {
         bool isConnected();
         void loop();
         void processReceivedMessage(char* topic, uint8_t* payload, unsigned int length);
+        bool publish(const char* topic, const char* payload);
+        bool publish(const char* topic, const char* payload, boolean retained);
 };
 
 extern MqttHandlers *mqtt;

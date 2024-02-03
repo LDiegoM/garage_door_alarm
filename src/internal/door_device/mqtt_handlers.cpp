@@ -97,7 +97,7 @@ void MqttHandlers::loop() {
     doorStatus currentStatus = m_doorStatus->currentStatus();
 
     if (currentStatus != m_lastDoorStatus)
-        sendValuesToMQTT(currentStatus);
+        sendDoorStatusToMQTT(currentStatus);
 
     m_mqttClient->loop();
 }
@@ -114,20 +114,37 @@ void MqttHandlers::processReceivedMessage(char* topic, uint8_t* payload, unsigne
     Serial.println("incomingMessage: " + incomingMessage);
 
     if (incomingMessage.equals("RESEND")) {
-        sendValuesToMQTT(m_doorStatus->currentStatus());
+        sendDoorStatusToMQTT(m_doorStatus->currentStatus());
     } else if (incomingMessage.equals("GET_IP")) {
-        m_mqttClient->publish(MQTT_TOPIC_RES_IP, m_wifi->getIP().c_str(), false);
+        publish(MQTT_TOPIC_RES_IP, m_wifi->getIP().c_str());
     } else if (incomingMessage.equals("GET_LOG")) {
-        m_mqttClient->publish(MQTT_TOPIC_RES_LOG, m_dataLogger->getLastLogTime().c_str(), false);
+        publish(MQTT_TOPIC_RES_LOG, m_dataLogger->getLastLogTime().c_str());
     } else if (incomingMessage.equals("GET_LOG_SIZE")) {
-        m_mqttClient->publish(MQTT_TOPIC_RES_LOGSIZE, String(m_dataLogger->logSize()).c_str(), false);
+        publish(MQTT_TOPIC_RES_LOGSIZE, String(m_dataLogger->logSize()).c_str());
     } else if (incomingMessage.equals("GET_STO_FREE")) {
-        m_mqttClient->publish(MQTT_TOPIC_RES_FREESTO, (m_storage->getFree() + " of " + m_storage->getSize()).c_str(), false);
+        publish(MQTT_TOPIC_RES_FREESTO, (m_storage->getFree() + " of " + m_storage->getSize()).c_str());
     }
 }
 
+bool MqttHandlers::publish(const char* topic, const char* payload){
+    return publish(topic, payload, false);
+}
+bool MqttHandlers::publish(const char* topic, const char* payload, boolean retained){
+    if (m_mqttClient == nullptr) {
+        m_connected = false;
+        return false;
+    }
+
+    if (!m_mqttClient->connected()) {
+        m_connected = false;
+        return false;
+    }
+
+    return m_mqttClient->publish(topic, payload, retained);
+}
+
 //////////////////// Private methods implementation
-void MqttHandlers::sendValuesToMQTT(doorStatus currentStatus) {
+void MqttHandlers::sendDoorStatusToMQTT(doorStatus currentStatus) {
     if (!m_settings->isSettingsOK())
         return;
 
@@ -140,6 +157,6 @@ void MqttHandlers::sendValuesToMQTT(doorStatus currentStatus) {
     if (currentStatus == Opened)
         message = "OPEN";
 
-    if (m_mqttClient->publish(MQTT_TOPIC_GARAGE_DOOR, message.c_str(), true))
+    if (publish(MQTT_TOPIC_GARAGE_DOOR, message.c_str(), true))
         m_lastDoorStatus = currentStatus;
 }
