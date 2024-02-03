@@ -10,7 +10,7 @@ In [this document](./doc/README.md) you'll find the electronic details to assemb
 
 Garage door alarm uses and IR sensor to detect and obstacle condition. that is translated as a door closed or opened.
 
-It also connects to an MQTT server to publish this door status to the topic `topic-door-status`.
+It also connects to an MQTT server to publish this door status to the topic `topic-garage-door`.
 
 The program logs door status changes in the SPIFFS memory using LittleFS, in the file `/logs/door_data.txt` (defined in settings file).
 
@@ -32,7 +32,7 @@ For monitoring porpuses I configured a complet IoT dashboard using [Iot MQTT Pan
 
 <!--![Dashboard](./doc/IoTMQTTPanel_dashboard.jpg) ![Settings](./doc/IoTMQTTPanel_settings.jpg)-->
 
-# MQTT management queues
+# MQTT management topics
 
 Garage door alarm listens from the topic `topic-door-cmd` to receive different commands:
 
@@ -41,6 +41,14 @@ Garage door alarm listens from the topic `topic-door-cmd` to receive different c
 - `GET_LOG`: the application will publish last door event timestamp to topic `topic-door-res-log`, in format `yyyy-mm-dd hh:mm:ss`.
 - `GET_LOG_SIZE`: the application will publish current door events file size to topic `topic-door-res-logsize`.
 - `GET_STO_FREE`: the application will publish current storage free size to topic `topic-door-res-freesto`.
+
+# MQTT status topic
+
+Garage door alarm sends status to the `topic-garage-door` topic, with these values:
+
+- `OPEN`: when garage door was recently opened, or a `RESEND` message was received from `topic-door-cmd` topic.
+- `CLOSE`: when garage door was recently closed, or a `RESEND` message was received from `topic-door-cmd` topic.
+- `RING`: when the doorbell button was pressed.
 
 # Configuration and management API Endpoints
 
