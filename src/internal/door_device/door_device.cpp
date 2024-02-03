@@ -10,22 +10,26 @@ DoorDevice::DoorDevice(bool isBuzzerConnected) {
     m_serialSpeed = 9600;
     m_irPin = 3;
     m_buzzerPin = 1;
+    m_bootIndicatorPin = 2;
     m_buttonPin = 0;
 #elif defined(ESP8266) && !defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = D5;
     m_buzzerPin = D1;
+    m_bootIndicatorPin = 2;
     m_buttonPin = 0;
 #else
     m_serialSpeed = 115200;
     m_irPin = GPIO_NUM_39;
     m_buzzerPin = GPIO_NUM_27;
+    m_bootIndicatorPin = 2;
     m_buttonPin = 0;
 #endif
 }
 
 //////////////////// Public methods implementation
 void DoorDevice::setup() {
+    m_bootIndicator = new BootIndicator(m_bootIndicatorPin);
     m_sensors = new Sensors(m_irPin);
 
     m_doorStat = new DoorStatus(m_sensors);
@@ -41,18 +45,30 @@ void DoorDevice::setup() {
     m_doorBell = new DoorBell();
 
     m_storage = new Storage();
-    if (!m_storage->begin())
+    if (!m_storage->begin()) {
+        m_bootIndicator->startErrorBlink();
         return;
+    }
 
     m_settings = new Settings(m_storage);
-    if (!m_settings->begin())
+    if (!m_settings->begin()) {
+        m_bootIndicator->startErrorBlink();
         return;
-    if (!m_settings->isSettingsOK())
+    }
+    if (!m_settings->isSettingsOK()) {
+        m_bootIndicator->startErrorBlink();
         return;
+    }
     settings_t config = m_settings->getSettings();
 
     m_wifi = new WiFiConnection(m_settings);
     m_wifi->begin();
+    if (m_wifi->isModeAP())
+        m_bootIndicator->startWarningBlink();
+    else
+        m_bootIndicator->setIndicatorStatusCallback([](){
+            return dev->isWiFiConnected();
+        });
 
     // Configure current time
     configTime(config.dateTime.gmtOffset * 60 * 60,
@@ -70,6 +86,7 @@ void DoorDevice::setup() {
 }
 
 void DoorDevice::loop() {
+    m_bootIndicator->loop();
     m_doorStat->loop();
     m_doorBell->loop();
 
@@ -94,6 +111,12 @@ void DoorDevice::loop() {
 
 void DoorDevice::buttonPressed() {
     m_doorBell->ringDoorbell();
+}
+
+bool DoorDevice::isWiFiConnected() {
+    if (m_wifi == nullptr)
+        return false;
+    return m_wifi->isConnected();
 }
 
 //////////////////// Private methods implementation

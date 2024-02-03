@@ -63,6 +63,7 @@ Garage door status is an open source project by Diego M. Lopez that is licensed 
 - Refactor for multiple device types.
 - Increase wifi connection timeout.
 - Add doorbell button.
+- Add wifi connection indicator.
 
 ## 0.0.1
 
