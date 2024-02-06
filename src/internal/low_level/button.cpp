@@ -13,10 +13,9 @@ Button::Button(byte pinButton, void (*handler)()) {
     m_handler = handler;
     m_antiBounceTimer = new Timer(100);
 
-    pinMode(m_pinButton, INPUT);
+    pinMode(m_pinButton, INPUT_PULLUP);
 
-    // The button now works only for PULLDOWN configuration. Add PULLUP capability configurable by constructor.
-    m_buttonValue = LOW;
+    m_buttonValue = HIGH;
     m_buttonAlreadyPressed = false;
 
 }
@@ -29,7 +28,7 @@ void Button::check() {
         m_antiBounceTimer->stop();
     }
     m_buttonValue = digitalRead(m_pinButton);
-    if (m_buttonValue == HIGH && !m_buttonAlreadyPressed) {
+    if (m_buttonValue == LOW && !m_buttonAlreadyPressed) {
         m_antiBounceTimer->start();
 
         // Raise up the sticky button condition.
@@ -37,7 +36,7 @@ void Button::check() {
 
         // Calls the callback function that handles the button pressed condition.
         m_handler();
-    } else if (m_buttonValue == LOW && m_buttonAlreadyPressed) {
+    } else if (m_buttonValue == HIGH && m_buttonAlreadyPressed) {
         // Button was released
         m_antiBounceTimer->start();
 
