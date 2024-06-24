@@ -29,7 +29,7 @@ DoorDevice::DoorDevice(bool isBuzzerConnected) {
 
 //////////////////// Public methods implementation
 void DoorDevice::setup() {
-    m_bootIndicator = new BootIndicator(m_bootIndicatorPin);
+    m_bootIndicator = new BootIndicator(m_bootIndicatorPin, true);
     m_sensors = new Sensors(m_irPin);
 
     m_doorStat = new DoorStatus(m_sensors);
@@ -67,7 +67,7 @@ void DoorDevice::setup() {
         m_bootIndicator->startWarningBlink();
     else
         m_bootIndicator->setIndicatorStatusCallback([](){
-            return dev->isWiFiConnected();
+            return !dev->isWiFiConnected();
         });
 
     // Configure current time
