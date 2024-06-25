@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="/bootstrap.min.css" rel="stylesheet">
+	<script src="/bootstrap.bundle.min.js"></script>
+    <title>garage_door_alarm</title>
+</head>
+<body class="d-flex flex-column h-100">
+    <header class="container mt-3">
+        <h2>garage_door_alarm</h2>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link{active_status}" href="/">Status</a>
+            </li>
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle{active_settings}" data-bs-toggle="dropdown" href="#">Config</a>
+				<ul class="dropdown-menu">
+					<li><a class="dropdown-item" href="/settings/wifi">WiFi</a></li>
+					<li><a class="dropdown-item" href="/settings/mqtt">MQTT</a></li>
+					<li><a class="dropdown-item" href="/settings/date">Date Time</a></li>
+				</ul>
+			</li>
+            <li class="nav-item">
+                <a class="nav-link {active_admin}" href="/admin">Administration</a>
+            </li>
+        </ul>
+    </header>
+
+<!-- Messages Modal -->
+<div class="modal fade" id="message"><div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title" id="messageHeader"></h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="closeModal();"></button>
+    </div>
+
+    <div class="modal-body"><p id="messageBody"></p></div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="closeModal();">Close</button>
+    </div>
+</div></div></div>
+<script>
+var messageModal = new bootstrap.Modal(document.getElementById('message'));
+function openModal(title, body) {
+    document.getElementById('messageHeader').innerHTML = title;
+    document.getElementById('messageBody').innerHTML = body;
+
+    messageModal.show();
+}
+function closeModal() {
+    messageModal.hide();
+}
+</script>
+
+    <main class="flex-shrink-0" style="margin-bottom: 60px;">
+        <div class="container">
