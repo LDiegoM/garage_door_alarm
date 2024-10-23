@@ -2,8 +2,14 @@
     <p>This page contains current Date Time configurations, and allows to modify them.</p>
     <div class="row">
         <div class="col">
-            <label for="server" class="form-label">Server:</label>
-            <input type="text" class="form-control" id="server" placeholder="Server" name="server" value="{server}">
+            <label for="server1" class="form-label">Server 1:</label>
+            <input type="text" class="form-control" id="server1" placeholder="Server 1" name="server1" value="{server1}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="server2" class="form-label">Server 2:</label>
+            <input type="text" class="form-control" id="server2" placeholder="Server 2" name="server2" value="{server2}">
         </div>
     </div>
     <div class="row">
@@ -22,3 +28,24 @@
         </div>
     </div>
 </div>
+<script>
+function saveDate() {
+    const b = getBody();
+
+    call("/settings/date", "PUT", b).then((o) => {
+        if (o == true) {
+            document.location.reload(true);
+        }
+    });
+}
+
+function getBody() {
+    const s1 = document.getElementById("server1").value;
+    const s2 = document.getElementById("server2").value;
+    const o = document.getElementById("gmtOffset").value;
+    const d = document.getElementById("daylightOffset").value;
+
+    var b = '{"server1":"' + s1 + '","server2":"' + s2 + '","gmt_offset":' + o + ',"daylight_offset":' + d + '}';
+    return b;
+}
+</script>

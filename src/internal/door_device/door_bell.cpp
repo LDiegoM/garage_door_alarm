@@ -8,13 +8,15 @@ DoorBell::DoorBell() {
 
 //////////////////// Public methods implementation
 bool DoorBell::ringDoorbell() {
-    if (m_tmrRingWait != nullptr && m_tmrRingWait->isRunning() && !m_tmrRingWait->isTime())
+    if (m_tmrRingWait == nullptr)
+        return false;
+    if (m_tmrRingWait->isRunning() && !m_tmrRingWait->isTime())
         return false;
 
-    if (mqtt == nullptr || !mqtt->isConnected())
+    if (_mqtt == nullptr || !_mqtt->isConnected())
         return false;
 
-    if (!mqtt->publish(TOPIC_DOOR_BELL, "RING"))
+    if (!_mqtt->publish(TOPIC_DOOR_BELL, "RING"))
         return false;
 
     m_tmrRingWait->start();

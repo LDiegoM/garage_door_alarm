@@ -34,3 +34,37 @@
         </div>
     </div>
 </div>
+<script>
+function saveMQTT() {
+    const body = getBody();
+
+    call("/settings/mqtt", "PUT", body).then((o) => {
+        if (o == true) {
+            document.location.reload(true);
+        }
+    });
+}
+
+function getBody() {
+    const s = document.getElementById("server").value;
+    const u = document.getElementById("user").value;
+    const p = document.getElementById("pw").value;
+    const o = document.getElementById("port").value;
+    const c = document.getElementById("certificate").value;
+    const cert = c.split("\n");
+
+    var b = '{"server":"' + s + '","user":"' + u + '","pw":"' + p + '","port":' + o + ',"cert":[';
+    var a = 0;
+    for (var i = 0; i < cert.length; i++) {
+        if (cert[i] != "") {
+            if (a > 0) {
+                b += ',';
+            }
+            a++;
+            b += '"' + cert[i].replace("\r", "") + '"';
+        }
+    }
+    b += ']}';
+    return b;
+}
+</script>

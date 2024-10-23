@@ -1,0 +1,48 @@
+<div class="container mt-4">
+    <p>This page contains current Device configurations, and allows to modify them.</p>
+    <div class="row">
+        <div class="col">
+            <label for="deviceID" class="form-label">Device Identifier:</label>
+            <input type="text" class="form-control" id="deviceID" placeholder="Device Identifier" name="deviceID" value="{deviceID}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label for="geoLocationLat" class="form-label">Geo Location Latitude:</label>
+            <input type="text" class="form-control" id="geoLocationLat" placeholder="Geo Location Latitude" name="geoLocationLat" value="{geoLocationLat}">
+        </div>
+        <div class="col">
+            <label for="geoLocationLng" class="form-label">Geo Location Longitude:</label>
+            <input type="text" class="form-control" id="geoLocationLng" placeholder="Geo Location Longitude" name="geoLocationLng" value="{geoLocationLng}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button type="button" class="btn btn-primary mt-2" onclick="saveDevice();">Save</button>
+        </div>
+    </div>
+</div>
+<script>
+function saveDevice() {
+    const body = getBody();
+
+    call("/settings/device", "PUT", body).then((o) => {
+        if (o == true) {
+            document.location.reload(true);
+        }
+    });
+}
+
+function getBody() {
+    const d = document.getElementById("deviceID").value;
+    const a = document.getElementById("geoLocationLat").value;
+    const o = document.getElementById("geoLocationLng").value;
+
+    var b = '{"device_id":"' + d + '"';
+    if (a != "" && o != "") {
+        b += ',"geo_location_lat":"' + a + '","geo_location_lng":"' + o + '"';
+    }
+    b += '}';
+    return b;
+}
+</script>

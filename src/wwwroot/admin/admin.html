@@ -11,7 +11,7 @@
         <div class="card-header">Settings</div>
         <div class="card-body">
             <p>Use this command to reset garage_door_alarm settings.</p>
-            <p>On next reboot garage_door_alarm will not connect to wifi. Instead it'll create an AP called <strong>garage_door_alarm</strong>.</p>
+            <p>On next reboot garage_door_alarm will not connect to wifi. Instead it will create an AP called <strong>garage_door_alarm</strong>.</p>
             <button type="button" class="btn btn-danger mt-2" onclick="clearSettings();">Reset settings and restart</button>
         </div>
     </div>
@@ -20,10 +20,35 @@
         <div class="card-body">
             <p>Current free storage size: <strong>{free_storage}</strong></p>
             <p>Current logs file size: <strong>{logs_size}</strong></p>
-            <p>Last logged data: <strong>{last_date}</strong></p>
             <button type="button" class="btn btn-primary" onclick="downloadLogs();">Download logs</button>
             <p class="mt-4">Use this command to clear logs file.</p>
             <button type="button" class="btn btn-danger" onclick="clearLogs();">Clear logs</button>
         </div>
     </div>
 </div>
+<script>
+function restart() {
+    call("/restart", "POST").then((o) => {
+        if (o == true) {
+            openModal("Done", "garage_door_alarm is restarting");
+        }
+    });
+}
+function clearSettings() {
+    call("/settings", "DELETE").then((o) => {
+        if (o == true) {
+            openModal("Done", "Successfully removed current settings");
+        }
+    });
+}
+function downloadLogs() {
+    window.location.assign("/logs");
+}
+function clearLogs() {
+    call("/logs", "DELETE").then((o) => {
+        if (o == true) {
+            document.location.reload(true);
+        }
+    });
+}
+</script>

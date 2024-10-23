@@ -1,7 +1,7 @@
 #ifndef button_h
 #define button_h
 
-#include <internal/low_level/timer.h>
+#include <internal/core/timer.h>
 
 class Button {
     private:

@@ -3,33 +3,14 @@
 
 #include <vector>
 #include <ArduinoJson.h>
-#include <internal/low_level/storage.h>
-
-struct wifiAP_t {
-    String ssid, password;
-};
-
-struct settings_t {
-    struct mqtt {
-        String server, username, password, caCertPath;
-        uint16_t port;
-        char *ca_cert;
-    } mqtt;
-    std::vector<wifiAP_t> wifiAPs;
-    struct logger {
-        String outputPath;
-    } logger;
-    struct dateTime {
-        String server;
-        long gmtOffset;
-        int daylightOffset;
-    } dateTime;
-};
+#include <internal/settings/models.h>
+#include <internal/core/application.h>
 
 extern const char* SETTINGS_FILE;
 
 class Settings {
     private:
+        Application *m_app;
         Storage *m_storage;
         settings_t m_settings;
         bool m_settingsOK;
@@ -39,12 +20,15 @@ class Settings {
         void defaultSettings();
 
     public:
-        Settings(Storage *storage);
+        Settings(Application *app);
 
         bool begin();
         bool isSettingsOK();
         settings_t getSettings();
         bool saveSettings();
+
+        void setDeviceValue(String deviceID);
+        void setDeviceValue(String deviceID, String geoLocationLat, String geoLocationLng);
 
         void addWifiAP(const char* ssid, const char* password);
         bool updWifiAP(const char* ssid, const char* password);
@@ -55,7 +39,9 @@ class Settings {
         void setMQTTValues(String server, String username, uint16_t port);
         bool setMQTTCertificate(String certData);
 
-        void setDateValues(String server, long gmtOffset, int daylightOffset);
+        void setLoggingValues(uint8_t level, uint16_t refreshPeriod);
+
+        void setDateValues(String server1, String server2, long gmtOffset, int daylightOffset);
 };
 
 #endif

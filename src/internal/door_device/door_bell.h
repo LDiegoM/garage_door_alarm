@@ -1,8 +1,8 @@
 #ifndef door_bell_h
 #define door_bell_h
 
-#include <internal/door_device/mqtt_handlers.h>
-#include <internal/low_level/timer.h>
+#include <internal/core/mqtt_connection.h>
+#include <internal/core/timer.h>
 
 class DoorBell {
     private:

@@ -21,3 +21,70 @@
         </div>
     </div>
 </div>
+<script>
+function delAP(ap) {
+    if (ap != "") {
+        call("/settings/wifi?ap=" + ap, "DELETE").then((o) => {
+            if (o == true) {
+                document.location.reload(true);
+            }
+        });
+    }
+}
+
+async function updAPs() {
+    const a = document.getElementsByClassName('upd-ap');
+    const aps = [...a].map(input => input.value);
+    const p = document.getElementsByClassName('upd-pw');
+    const pws = [...p].map(input => input.value);
+    const b = getUpdBody(aps, pws);
+
+    var o = false;
+    if (b != '{"aps":[]}') {
+        o = await call("/settings/wifi", "PUT", b);
+    }
+    return o;
+}
+
+function getUpdBody(aps, pws) {
+    var s = '{"aps":[';
+    var a = 0;
+    for (var i = 0; i < aps.length; i++) {
+        if (pws[i] != "****") {
+            if (a > 0) {
+                s += ",";
+            }
+            a++;
+            s += '{"ap":"' + aps[i] + '", "pw":"' + pws[i] + '"}';
+        }
+    }
+    s += "]}";
+    return s;
+}
+
+async function addAP() {
+    const a = document.getElementById("ap").value;
+    const p = document.getElementById("pw").value;
+    var o = false;
+    if (ap != "") {
+        const b = '{"ap":"' + a + '","pw":"' + p + '"}';
+        o = await call("/settings/wifi", "POST", b);
+    }
+    return o;
+}
+
+function saveWiFi() {
+    var okUpd = false;
+    var okAdd = false;
+    updAPs().then((uo) => {
+        okUpd = uo;
+        addAP().then((ao) => {
+            okAdd = ao;
+
+            if (okUpd == true || okAdd == true) {
+                document.location.reload(true);
+            }
+        });
+    });
+}
+</script>

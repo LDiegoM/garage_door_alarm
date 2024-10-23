@@ -4,7 +4,7 @@
 #include <internal/common/door_status.h>
 
 #include <internal/low_level/sensors.h>
-#include <internal/low_level/timer.h>
+#include <internal/core/timer.h>
 
 class DoorStatus : public CommonDoorStatus {
     private:
