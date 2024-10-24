@@ -25,17 +25,22 @@ bool MqttConnection::begin() {
         return false;
 
     m_secureClient = new WiFiClientSecure();
+    lg->debug("new WiFiClientSecure completed", __FILE__, __LINE__);
 #ifdef ESP8266
     caCertX509 = new X509List(m_settings.ca_cert);
+    lg->debug("new X509List completed", __FILE__, __LINE__);
     m_secureClient->setTrustAnchors(caCertX509);
+    lg->debug("secureClient.setTrustAnchors completed", __FILE__, __LINE__);
 #else
     m_secureClient->setCACert(m_settings.ca_cert);
 #endif
 
     m_mqttClient = new PubSubClient(*m_secureClient);
+    lg->debug("new PubSubClient completed", __FILE__, __LINE__);
     m_mqttClient->setCallback([](char* topic, uint8_t* payload, unsigned int length){
         _mqtt->processReceivedMessage(topic, payload, length);
     });
+    lg->debug("mqttClient.setCallback completed", __FILE__, __LINE__);
 
     m_tmrConnectMQTT = new Timer(5000);
 
@@ -51,24 +56,33 @@ bool MqttConnection::connect() {
         m_connected = true;
         return true;
     }
-    
+
+    lg->debug("mqtt_connection.connect begin", __FILE__, __LINE__);
+
     // If wifi is not connected, try to connect
     if (!m_wifi->isConnected()) {
         if (!m_wifi->connect(true))
             return false;
     }
+    lg->debug("mqtt_connection.connect - wifi is connected", __FILE__, __LINE__);
 
     String clientID = m_deviceID + m_wifi->getIP();
+    lg->debug("mqtt_connection.connect - created device_id", __FILE__, __LINE__,
+        lg->newTags()->add("client_id", clientID)
+    );
     m_mqttClient->setServer(m_settings.server.c_str(), m_settings.port);
+    lg->debug("mqtt_connection.connect - setServer called", __FILE__, __LINE__);
     if (!m_mqttClient->connect(clientID.c_str(),
                                m_settings.username.c_str(),
                                m_settings.password.c_str())) {
-        lg->warn("Fail to connect to mqtt service", __FILE__, __LINE__);
+        lg->warn("Fail to connect to mqtt service", __FILE__, __LINE__,
+            lg->newTags()->add("client_id", clientID)
+        );
         return false;
     }
     String cmdTopic = getTopicName(MQTT_TOPIC_ADM_CMD);
     lg->debug("Device connected to mqtt. Subscribing to cmd topic", __FILE__, __LINE__,
-        lg->newTags()->add("cmd_topic", cmdTopic)
+        lg->newTags()->add("cmd_topic", cmdTopic)->add("client_id", clientID)
     );
     m_mqttClient->subscribe(cmdTopic.c_str());
 

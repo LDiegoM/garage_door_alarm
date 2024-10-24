@@ -204,9 +204,9 @@ String Logging::getFullData(String msg, uint8_t level, String file, int line, Lo
 
 void Logging::writeData(String fullData) {
     String data = fullData + "\n";
-    if (m_storage != nullptr)
-        m_storage->appendFile(LOGGING_FILE, data.c_str());
-    else
+    //if (m_storage != nullptr)
+    //    m_storage->appendFile(LOGGING_FILE, data.c_str());
+    //else
         Serial.print(data);
 }
 

@@ -147,7 +147,10 @@ bool Application::beginMqtt(mqtt_t settings) {
     );
 
     _mqtt = new MqttConnection(name(), deviceID(), getLocation(), wifi(), storage(), settings);
-    return _mqtt->begin();
+    lg->debug("new MqttConnection completed", __FILE__, __LINE__);
+    bool ok = _mqtt->begin();
+    lg->debug("MqttConnection.begin() completed", __FILE__, __LINE__);
+    return ok;
 }
 MqttConnection* Application::mqtt() {
     return _mqtt;

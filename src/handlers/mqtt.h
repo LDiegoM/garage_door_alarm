@@ -15,8 +15,9 @@ class MqttHandlers {
 
         CommonDoorStatus *m_doorStatus;
         doorStatus m_lastDoorStatus = Unknown;
+        Timer *m_tmrSendMessage;
 
-        void sendDoorStatusToMQTT(doorStatus currentStatus);
+        bool sendDoorStatusToMQTT(doorStatus currentStatus);
 
     public:
         MqttHandlers(CommonDoorStatus *doorStatus);

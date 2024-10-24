@@ -10,7 +10,7 @@
 #include <internal/door_device/door_status.h>
 #include <internal/door_device/door_bell.h>
 
-unsigned long m_serialSpeed;
+unsigned long serialSpeed;
 uint8_t m_irPin;
 uint8_t m_buzzerPin;
 uint8_t m_bootIndicatorPin;
@@ -38,25 +38,26 @@ bool isWiFiConnected() {
 
 void setup() {
 #if defined(ESP8266) && defined(ARDUINO_ESP8266_ESP01)
-    m_serialSpeed = 9600;
+    serialSpeed = 9600;
     m_irPin = 3;            // GPIO3 (Rx)
     m_buzzerPin = 1;        // GPIO1 (Tx)
     m_bootIndicatorPin = 2; // GPIO2
     m_buttonPin = 0;        // GPIO0
 #elif defined(ESP8266) && !defined(ARDUINO_ESP8266_ESP01)
-    m_serialSpeed = 9600;
+    serialSpeed = 9600;
     m_irPin = D5;
     m_buzzerPin = D1;
     m_bootIndicatorPin = 2;
     m_buttonPin = 0;
 #else
-    m_serialSpeed = 115200;
+    serialSpeed = 115200;
     m_irPin = GPIO_NUM_39;
     m_buzzerPin = GPIO_NUM_27;
     m_bootIndicatorPin = 2;
     m_buttonPin = 0;
 #endif
 
+    Serial.begin(serialSpeed);
     app = new Application("garage_door", m_bootIndicatorPin, LOG_LEVEL_DEBUG);
     if (!app->beginStorage()) {
         app->bootIndicator()->startErrorBlink();
@@ -120,6 +121,8 @@ void setup() {
 
     mqttHandlers = new MqttHandlers(m_doorStat);
     mqttHandlers->begin();
+
+    lg->debug("Setup finished", __FILE__, __LINE__);
 }
 
 void loop() {
