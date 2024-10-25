@@ -24,21 +24,20 @@ bool MqttConnection::begin() {
     if (m_settings.server.equals("") || m_wifi->isModeAP())
         return false;
 
-    m_secureClient = new WiFiClientSecure();
     lg->debug("new WiFiClientSecure completed", __FILE__, __LINE__);
 #ifdef ESP8266
     caCertX509 = new X509List(m_settings.ca_cert);
     lg->debug("new X509List completed", __FILE__, __LINE__);
-    m_secureClient->setTrustAnchors(caCertX509);
+    m_secureClient.setTrustAnchors(caCertX509);
     lg->debug("secureClient.setTrustAnchors completed", __FILE__, __LINE__);
 #else
     m_secureClient->setCACert(m_settings.ca_cert);
 #endif
 
-    m_mqttClient = new PubSubClient(*m_secureClient);
-    lg->debug("new PubSubClient completed", __FILE__, __LINE__);
-    m_mqttClient->setCallback([](char* topic, uint8_t* payload, unsigned int length){
-        _mqtt->processReceivedMessage(topic, payload, length);
+    m_mqttClient.begin(m_settings.server.c_str(), m_settings.port, m_secureClient);
+    lg->debug("m_mqttClient.begin() completed", __FILE__, __LINE__);
+    m_mqttClient.onMessage(*[](String &topic, String &payload){
+        _mqtt->processReceivedMessage(topic, payload);
     });
     lg->debug("mqttClient.setCallback completed", __FILE__, __LINE__);
 
@@ -52,7 +51,7 @@ bool MqttConnection::connect() {
     if (m_settings.server.equals("") || m_wifi->isModeAP())
         return false;
 
-    if (m_mqttClient->connected()) {
+    if (m_mqttClient.connected()) {
         m_connected = true;
         return true;
     }
@@ -70,9 +69,7 @@ bool MqttConnection::connect() {
     lg->debug("mqtt_connection.connect - created device_id", __FILE__, __LINE__,
         lg->newTags()->add("client_id", clientID)
     );
-    m_mqttClient->setServer(m_settings.server.c_str(), m_settings.port);
-    lg->debug("mqtt_connection.connect - setServer called", __FILE__, __LINE__);
-    if (!m_mqttClient->connect(clientID.c_str(),
+    if (!m_mqttClient.connect(clientID.c_str(),
                                m_settings.username.c_str(),
                                m_settings.password.c_str())) {
         lg->warn("Fail to connect to mqtt service", __FILE__, __LINE__,
@@ -84,13 +81,13 @@ bool MqttConnection::connect() {
     lg->debug("Device connected to mqtt. Subscribing to cmd topic", __FILE__, __LINE__,
         lg->newTags()->add("cmd_topic", cmdTopic)->add("client_id", clientID)
     );
-    m_mqttClient->subscribe(cmdTopic.c_str());
+    m_mqttClient.subscribe(cmdTopic.c_str());
 
     for (size_t i = 0; i < m_subcriptionTopics.size(); i++) {
         lg->debug("Device connected to mqtt. Subscribing to external topic", __FILE__, __LINE__,
             lg->newTags()->add("external_topic", m_subcriptionTopics[i])
         );
-        m_mqttClient->subscribe(m_subcriptionTopics[i].c_str());
+        m_mqttClient.subscribe(m_subcriptionTopics[i].c_str());
     }
 
     m_tmrConnectMQTT->stop();
@@ -100,6 +97,9 @@ bool MqttConnection::connect() {
 }
 
 bool MqttConnection::isConnected() {
+    if (m_wifi->isModeAP())
+        return false;
+
     return m_connected;
 }
 
@@ -107,7 +107,7 @@ void MqttConnection::loop() {
     if (m_settings.server.equals("") || m_wifi->isModeAP())
         return;
 
-    if (!m_mqttClient->connected()) {
+    if (!m_mqttClient.connected()) {
         m_connected = false;
 
         if (!m_tmrConnectMQTT->isRunning()) {
@@ -124,71 +124,62 @@ void MqttConnection::loop() {
         }
     }
 
-    m_mqttClient->loop();
+    m_mqttClient.loop();
 }
 
-void MqttConnection::processReceivedMessage(char* topic, uint8_t* payload, unsigned int length) {
-    String sTopic = String(topic);
+void MqttConnection::processReceivedMessage(String &topic, String &payload) {
     lg->debug("Message received from topic", __FILE__, __LINE__,
         lg->newTags()
-            ->add("topic", sTopic)
-            ->add("length", String(length))
+            ->add("topic", topic)
+            ->add("payload", payload)
+            ->add("length", String(payload.length()))
     );
-    if (!getTopicName(MQTT_TOPIC_ADM_CMD).equals(sTopic)) {
+    if (!getTopicName(MQTT_TOPIC_ADM_CMD).equals(topic)) {
         lg->debug("Message received from another topic", __FILE__, __LINE__);
         return;
     }
 
-    lg->debug("Message received from command topic. Composing incoming message.", __FILE__, __LINE__);
-    String incomingMessage = "";
-    for (unsigned int i = 0; i < length; i++)
-        incomingMessage += (char)payload[i];
-    
-    lg->debug("incomingMessage from topic", __FILE__, __LINE__,
-        lg->newTags()->add("message", incomingMessage)
-    );
-
-    if (incomingMessage.equals("DEVICE_ID")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_DEVICE).c_str(), m_deviceID.c_str(), false);
+    if (payload.equals("DEVICE_ID")) {
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_DEVICE).c_str(), m_deviceID.c_str(), false);
         return;
-    } else if (incomingMessage.equals("GET_LOCATION")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_LOCATION).c_str(), encodeMessageJson(m_location).c_str(), false);
+    } else if (payload.equals("GET_LOCATION")) {
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_LOCATION).c_str(), encodeMessageJson(m_location).c_str(), false);
         return;
-    } else if (incomingMessage.equals("GET_IP")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_IP).c_str(), encodeMessageJson(m_wifi->getIP()).c_str(), false);
+    } else if (payload.equals("GET_IP")) {
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_IP).c_str(), encodeMessageJson(m_wifi->getIP()).c_str(), false);
         return;
     }
      
     // Parse incoming message as json
-    String cmd = processJsonMessage(incomingMessage);
+    String cmd = processJsonMessage(payload);
     if (cmd.equals("GET_IP")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_IP).c_str(), encodeMessageJson(m_wifi->getIP()).c_str(), false);
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_IP).c_str(), encodeMessageJson(m_wifi->getIP()).c_str(), false);
     } else if (cmd.equals("GET_LOG_SIZE")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_LOGSIZE).c_str(), encodeMessageJson(String(lg->logSize())).c_str(), false);
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_LOGSIZE).c_str(), encodeMessageJson(String(lg->logSize())).c_str(), false);
     } else if (cmd.equals("GET_STO_FREE")) {
-        m_mqttClient->publish(
+        m_mqttClient.publish(
             getTopicName(MQTT_TOPIC_ADM_FREESTO).c_str(),
             encodeMessageJson(m_storage->getFree() + " of " + m_storage->getSize()).c_str(), false
         );
     } else if (cmd.equals("GET_LOCATION")) {
-        m_mqttClient->publish(getTopicName(MQTT_TOPIC_ADM_LOCATION).c_str(), encodeMessageJson(m_location).c_str(), false);
+        m_mqttClient.publish(getTopicName(MQTT_TOPIC_ADM_LOCATION).c_str(), encodeMessageJson(m_location).c_str(), false);
     }
 }
 
-void MqttConnection::setCallback(MQTT_CALLBACK_SIGNATURE) {
-    m_mqttClient->setCallback(callback);
+void MqttConnection::setCallback(MQTTClientCallbackSimple callback) {
+    m_mqttClient.onMessage(callback);
 }
 
 bool MqttConnection::subscribe(const char* topic) {
     m_subcriptionTopics.push_back(String(topic));
-    return m_mqttClient->subscribe(topic);
+    return m_mqttClient.subscribe(topic);
 }
 
 bool MqttConnection::publish(const char* topic, const char* payload){
     return publish(topic, payload, false);
 }
 bool MqttConnection::publish(const char* topic, const char* payload, boolean retained){
-    return m_mqttClient->publish(topic, payload, retained);
+    return m_mqttClient.publish(topic, payload, retained);
 }
 
 //////////////////// Private methods implementation

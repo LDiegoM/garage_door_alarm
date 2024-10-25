@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFiClientSecure.h>
-#include <PubSubClient.h>
+#include <MQTT.h>
 #include <ArduinoJson.h>
 #include <vector>
 
@@ -34,8 +34,8 @@ class MqttConnection {
 #ifdef ESP8266
         X509List *caCertX509;
 #endif
-        WiFiClientSecure *m_secureClient;
-        PubSubClient *m_mqttClient;
+        WiFiClientSecure m_secureClient;
+        MQTTClient m_mqttClient;
 
         bool m_connected;
         Timer *m_tmrConnectMQTT;
@@ -69,8 +69,8 @@ class MqttConnection {
         bool connect();
         bool isConnected();
         void loop();
-        void processReceivedMessage(char* topic, uint8_t* payload, unsigned int length);
-        void setCallback(MQTT_CALLBACK_SIGNATURE);
+        void processReceivedMessage(String &topic, String &payload);
+        void setCallback(MQTTClientCallbackSimple callback);
         bool subscribe(const char* topic);
         bool publish(const char* topic, const char* payload);
         bool publish(const char* topic, const char* payload, boolean retained);

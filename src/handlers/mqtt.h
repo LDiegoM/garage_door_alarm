@@ -23,7 +23,7 @@ class MqttHandlers {
         MqttHandlers(CommonDoorStatus *doorStatus);
 
         void begin();
-        void processReceivedMessage(char* topic, uint8_t* payload, unsigned int length);
+        void processReceivedMessage(String &topic, String &payload);
         void loop();
 };
 

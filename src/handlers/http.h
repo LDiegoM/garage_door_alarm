@@ -30,34 +30,6 @@ struct settings_date_t {
     int daylightOffset;
 };
 
-/////////// HTTP Handlers
-void downloadLogs();
-void deleteLogs();
-void restart();
-void getStatus();
-void getSettings();
-void delSettings();
-
-void getBootstrapCSS();
-void getBootstrapJS();
-void getNotFound();
-
-void getStatusHTML();
-
-void getSettingsWiFi();
-void addSettingsWiFi();
-void updSettingsWiFi();
-void delSettingsWiFi();
-
-void getSettingsMQTT();
-void updSettingsMQTT();
-void getSettingsMQTTCert();
-
-void getSettingsDate();
-void updSettingsDate();
-
-void getAdmin();
-
 class HttpHandlers {
     private:
         const uint16_t METEO_HTTP_PORT = 80;

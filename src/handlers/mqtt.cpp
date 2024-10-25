@@ -13,43 +13,32 @@ void MqttHandlers::begin() {
     if (_mqtt == nullptr || !_mqtt->isConnected())
         return;
 
-    lg->debug("MqttHandlers::begin() - _mqtt is connected (WTF!)", __FILE__, __LINE__);
+    lg->debug("MqttHandlers::begin() - _mqtt is connected", __FILE__, __LINE__);
     _mqtt->subscribe(MQTT_TOPIC_GARAGE_DOOR_CMD);
 
     lg->debug("mqtt_handlers.begin() - registering handler callback", __FILE__, __LINE__);
-    _mqtt->setCallback([](char* topic, uint8_t* payload, unsigned int length){
-        mqttHandlers->processReceivedMessage(topic, payload, length);
+    _mqtt->setCallback([](String &topic, String &payload){
+        mqttHandlers->processReceivedMessage(topic, payload);
     });
 }
 
-void MqttHandlers::processReceivedMessage(char* topic, uint8_t* payload, unsigned int length) {
+void MqttHandlers::processReceivedMessage(String &topic, String &payload) {
     if (_mqtt == nullptr)
         return;
 
-    String sTopic = String(topic);
+    _mqtt->processReceivedMessage(topic, payload);
 
-    _mqtt->processReceivedMessage(topic, payload, length);
-
-    if (!sTopic.equals(MQTT_TOPIC_GARAGE_DOOR_CMD)) {
+    if (!topic.equals(MQTT_TOPIC_GARAGE_DOOR_CMD)) {
         return;
     }
 
-    lg->debug("Message received from garage door topic. Composing incoming message.", __FILE__, __LINE__);
-    String incomingMessage = "";
-    for (unsigned int i = 0; i < length; i++)
-        incomingMessage += (char)payload[i];
-    
-    lg->debug("incomingMessage from topic", __FILE__, __LINE__,
-        lg->newTags()->add("message", incomingMessage)
-    );
-
-    if (incomingMessage.equals("RESEND")) {
+    if (payload.equals("RESEND")) {
         sendDoorStatusToMQTT(m_doorStatus->currentStatus());
     }
 }
 
 void MqttHandlers::loop() {
-    if (_mqtt == nullptr)
+    if (_mqtt == nullptr || !_mqtt->isConnected())
         return;
 
     doorStatus currentStatus = m_doorStatus->currentStatus();
