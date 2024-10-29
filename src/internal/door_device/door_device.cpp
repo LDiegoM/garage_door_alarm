@@ -3,15 +3,16 @@
 DoorDevice *dev = nullptr;
 
 //////////////////// Constructor
-DoorDevice::DoorDevice(bool isBuzzerConnected) {
+DoorDevice::DoorDevice(bool isBuzzerConnected, bool isDoorBellButtonConnected) {
     m_isBuzzerConnected = isBuzzerConnected;
+    m_isDoorBellButtonConnected = isDoorBellButtonConnected;
 
 #if defined(ESP8266) && defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
-    m_irPin = 3;
-    m_buzzerPin = 1;
-    m_bootIndicatorPin = 2;
-    m_buttonPin = 0;
+    m_irPin = 3;            // GPIO3 (Rx)
+    m_buzzerPin = 1;        // GPIO1 (Tx)
+    m_bootIndicatorPin = 2; // GPIO2
+    m_buttonPin = 0;        // GPIO0
 #elif defined(ESP8266) && !defined(ARDUINO_ESP8266_ESP01)
     m_serialSpeed = 9600;
     m_irPin = D5;
@@ -39,10 +40,12 @@ void DoorDevice::setup() {
         m_garage_alarm = new Alarm(m_doorStat, m_buzzerPin);
     }
 
-    m_button = new Button(m_buttonPin, [](){
-        dev->buttonPressed();
-    });
-    m_doorBell = new DoorBell();
+    if (m_isDoorBellButtonConnected) {
+        m_button = new Button(m_buttonPin, [](){
+            dev->buttonPressed();
+        });
+        m_doorBell = new DoorBell();
+    }
 
     m_storage = new Storage();
     if (!m_storage->begin()) {
@@ -81,14 +84,18 @@ void DoorDevice::setup() {
     mqtt = new MqttHandlers(m_wifi, m_doorStat, m_settings, dataLogger, m_storage);
     mqtt->begin();
 
-    httpHandlers = new HttpHandlers(m_wifi, m_storage, m_settings, dataLogger, m_doorStat, mqtt);
-    httpHandlers->begin();
+    if (m_wifi->isModeAP()) {
+        httpHandlers = new HttpHandlers(m_wifi, m_storage, m_settings, dataLogger, m_doorStat, mqtt);
+        httpHandlers->begin();
+    }
 }
 
 void DoorDevice::loop() {
     m_bootIndicator->loop();
     m_doorStat->loop();
-    m_doorBell->loop();
+
+    if (m_doorBell != nullptr)
+        m_doorBell->loop();
 
     if (m_isBuzzerConnected)
         m_garage_alarm->loop();
@@ -110,13 +117,16 @@ void DoorDevice::loop() {
 }
 
 void DoorDevice::buttonPressed() {
-    m_doorBell->ringDoorbell();
+    if (m_doorBell != nullptr)
+        m_doorBell->ringDoorbell();
 }
 
 bool DoorDevice::isWiFiConnected() {
-    if (m_wifi == nullptr)
+    if (m_wifi == nullptr || !m_wifi->isConnected())
         return false;
-    return m_wifi->isConnected();
+    if (mqtt == nullptr || !mqtt->isConnected())
+        return false;
+    return true;
 }
 
 //////////////////// Private methods implementation

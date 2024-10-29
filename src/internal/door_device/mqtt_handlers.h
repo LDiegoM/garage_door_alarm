@@ -46,6 +46,7 @@ class MqttHandlers : public CommonMqttHandlers {
         const char* MQTT_TOPIC_RES_LOG = "topic-door-res-log";
         const char* MQTT_TOPIC_RES_LOGSIZE = "topic-door-res-logsize";
         const char* MQTT_TOPIC_RES_FREESTO = "topic-door-res-freesto";
+        const char* MQTT_TOPIC_RES_FREEMEM = "topic-door-res-freemem";
 
         doorStatus m_lastDoorStatus = Unknown;
 

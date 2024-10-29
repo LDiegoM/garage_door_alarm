@@ -123,6 +123,8 @@ void MqttHandlers::processReceivedMessage(char* topic, uint8_t* payload, unsigne
         publish(MQTT_TOPIC_RES_LOGSIZE, String(m_dataLogger->logSize()).c_str());
     } else if (incomingMessage.equals("GET_STO_FREE")) {
         publish(MQTT_TOPIC_RES_FREESTO, (m_storage->getFree() + " of " + m_storage->getSize()).c_str());
+    } else if (incomingMessage.equals("GET_MEM_FREE")) {
+        publish(MQTT_TOPIC_RES_FREESTO, (String((float) ESP.getFreeHeap() / 1024) + " kb").c_str());
     }
 }
 

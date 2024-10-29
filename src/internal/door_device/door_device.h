@@ -24,6 +24,7 @@ class DoorDevice {
         uint8_t m_bootIndicatorPin;
         uint8_t m_buttonPin;
         bool m_isBuzzerConnected;
+        bool m_isDoorBellButtonConnected;
 
         Sensors *m_sensors;
         DoorStatus *m_doorStat;
@@ -32,12 +33,12 @@ class DoorDevice {
         WiFiConnection *m_wifi = nullptr;
         DateTime *m_dateTime;
         Alarm *m_garage_alarm;
-        Button *m_button;
-        DoorBell *m_doorBell;
+        Button *m_button = nullptr;
+        DoorBell *m_doorBell = nullptr;
         BootIndicator *m_bootIndicator;
 
     public:
-        DoorDevice(bool isBuzzerConnected);
+        DoorDevice(bool isBuzzerConnected, bool isDoorBellButtonConnected);
 
         void setup();
         void loop();
